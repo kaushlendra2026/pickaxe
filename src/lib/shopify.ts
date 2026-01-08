@@ -5,8 +5,9 @@ const STOREFRONT_TOKEN = import.meta.env.VITE_SHOPIFY_STOREFRONT_TOKEN;
 const API_VERSION = import.meta.env.VITE_SHOPIFY_API_VERSION;
 
 if (!SHOP_DOMAIN || !STOREFRONT_TOKEN || !API_VERSION) {
-  throw new Error("Missing Shopify environment variables");
+  console.warn("Shopify env vars missing — check Vercel settings");
 }
+
 
 const endpoint = `https://${SHOP_DOMAIN}/api/${API_VERSION}/graphql.json`;
 
