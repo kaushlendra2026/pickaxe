@@ -8,7 +8,8 @@ import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { CreditCard, Truck, Shield, ChevronRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { createShopifyCheckout } from "@/lib/checkout";
+import { createShopifyCheckout } from "@/lib/shopify";
+
 
 const Checkout = () => {
   const { items, totalPrice, clearCart } = useCart();
