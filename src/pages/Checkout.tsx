@@ -13,11 +13,12 @@ import { createShopifyCheckout } from "@/lib/checkout";
 const Checkout = () => {
   const { items, totalPrice, clearCart } = useCart();
 
-  const handlePlaceOrder = async () => {
-    const url = await createShopifyCheckout(items);
-    clearCart();
-    window.location.href = url;
-  };
+  const handlePlaceOrder = () => {
+  console.log("Checkout button clicked");
+  console.log("Cart items:", items);
+  alert("Checkout button works. Shopify not connected yet.");
+};
+
 
  
 
