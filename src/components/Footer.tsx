@@ -4,7 +4,7 @@ import { Box, Twitter, Instagram, Github, Mail } from 'lucide-react';
 
 const socialLinks = [
   { icon: Twitter, href: '#', label: 'Twitter' },
-  { icon: Instagram, href: '#', label: 'Instagram' },
+  { icon: Instagram, href: 'https://www.instagram.com/pickaxe.labs?igsh=bjZwcGx2bWtjYjFo', label: 'Instagram' },
   { icon: Github, href: '#', label: 'GitHub' },
   { icon: Mail, href: 'mailto:contact@printforge.com', label: 'Email' },
 ];
@@ -25,7 +25,7 @@ export function Footer() {
             <div className="space-y-2 flex flex-col items-center flex-1">
               <div className="flex items-center gap-2">
                 <span className="font-display text-3xl font-bold text-gradient">
-                  PrintForge
+                  PICKAXE.LAB
                 </span>
               </div>
               <p className="text-muted-foreground font-medium text-center w-full max-w-sm px-4">
@@ -83,7 +83,7 @@ export function Footer() {
         className="bg-gradient-to-b from-foreground/10 via-foreground/5 to-transparent bg-clip-text text-transparent leading-none absolute left-1/2 -translate-x-1/2 bottom-32 font-display font-extrabold tracking-tighter pointer-events-none select-none text-center"
         style={{ fontSize: 'clamp(3rem, 12vw, 10rem)', maxWidth: '95vw' }}
       >
-        PRINTFORGE
+        PICKAXE.LAB
       </div>
 
       {/* Bottom Logo */}
