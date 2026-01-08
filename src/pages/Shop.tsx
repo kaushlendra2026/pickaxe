@@ -4,19 +4,33 @@ import { Navbar } from '@/components/Navbar';
 import { CartDrawer } from '@/components/CartDrawer';
 import { Footer } from '@/components/Footer';
 import { ProductCard } from '@/components/ProductCard';
-import { products, categories } from '@/data/products';
+import { useShopifyProducts } from "@/hooks/useShopifyProducts";
 import { Button } from '@/components/ui/button';
-import { Search, SlidersHorizontal } from 'lucide-react';
+import { Search } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 
 const Shop = () => {
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [searchQuery, setSearchQuery] = useState('');
 
+  // ✅ FETCH PRODUCTS FROM SHOPIFY
+  const { data: products = [], isLoading } = useShopifyProducts();
+
+  // ✅ BUILD CATEGORIES FROM PRODUCTS
+  const categories = [
+    'All',
+    ...Array.from(new Set(products.map((p) => p.category))),
+  ];
+
+  // ✅ FILTER PRODUCTS
   const filteredProducts = products.filter((product) => {
-    const matchesCategory = selectedCategory === 'All' || product.category === selectedCategory;
-    const matchesSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    const matchesCategory =
+      selectedCategory === 'All' || product.category === selectedCategory;
+
+    const matchesSearch =
+      product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       product.description.toLowerCase().includes(searchQuery.toLowerCase());
+
     return matchesCategory && matchesSearch;
   });
 
@@ -27,6 +41,7 @@ const Shop = () => {
 
       <main className="pt-24 pb-16">
         <div className="container mx-auto px-6">
+
           {/* Header */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -70,11 +85,6 @@ const Shop = () => {
                   variant={selectedCategory === category ? 'default' : 'outline'}
                   size="sm"
                   onClick={() => setSelectedCategory(category)}
-                  className={
-                    selectedCategory === category
-                      ? 'gradient-glow text-primary-foreground'
-                      : 'border-border hover:border-primary'
-                  }
                 >
                   {category}
                 </Button>
@@ -82,15 +92,28 @@ const Shop = () => {
             </div>
           </motion.div>
 
+          {/* Loading */}
+          {isLoading && (
+            <p className="text-center text-muted-foreground">
+              Loading products...
+            </p>
+          )}
+
           {/* Products Grid */}
-          {filteredProducts.length === 0 ? (
+          {!isLoading && filteredProducts.length === 0 ? (
             <div className="text-center py-16">
-              <p className="text-muted-foreground text-lg">No products found matching your criteria.</p>
+              <p className="text-muted-foreground text-lg">
+                No products found.
+              </p>
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {filteredProducts.map((product, index) => (
-                <ProductCard key={product.id} product={product} index={index} />
+                <ProductCard
+                  key={product.id}
+                  product={product}
+                  index={index}
+                />
               ))}
             </div>
           )}
