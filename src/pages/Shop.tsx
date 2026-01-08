@@ -18,9 +18,12 @@ const Shop = () => {
 
   // ✅ BUILD CATEGORIES FROM PRODUCTS
   const categories = [
-    'All',
-    ...Array.from(new Set(products.map((p) => p.category))),
-  ];
+  "All",
+  ...Array.from(
+    new Set(products.map((p) => p.category).filter(Boolean))
+  ),
+];
+
 
   // ✅ FILTER PRODUCTS
   const filteredProducts = products.filter((product) => {
