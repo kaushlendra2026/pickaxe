@@ -4,6 +4,10 @@ const SHOP_DOMAIN = import.meta.env.VITE_SHOPIFY_STORE_DOMAIN;
 const STOREFRONT_TOKEN = import.meta.env.VITE_SHOPIFY_STOREFRONT_TOKEN;
 const API_VERSION = import.meta.env.VITE_SHOPIFY_API_VERSION;
 
+if (!SHOP_DOMAIN || !STOREFRONT_TOKEN || !API_VERSION) {
+  throw new Error("Missing Shopify environment variables");
+}
+
 const endpoint = `https://${SHOP_DOMAIN}/api/${API_VERSION}/graphql.json`;
 
 async function shopifyFetch(query: string, variables?: any) {
@@ -19,16 +23,12 @@ async function shopifyFetch(query: string, variables?: any) {
   const json = await res.json();
 
   if (json.errors) {
-    console.error(json.errors);
-    throw new Error("Shopify API error");
+    throw new Error(JSON.stringify(json.errors));
   }
 
   return json.data;
 }
 
-/**
- * CREATE CHECKOUT + RETURN CHECKOUT URL
- */
 export async function createShopifyCheckout(items: {
   id: string;
   quantity: number;
