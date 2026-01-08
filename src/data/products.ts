@@ -1,4 +1,4 @@
-import deadpoolBust from '@/assets/products/deadpool-bust.jpeg';
+/*import deadpoolBust from '@/assets/products/deadpool-bust.jpeg';
 import darthVaderBust from '@/assets/products/darth-vader-bust.jpeg';
 import spidermanBust from '@/assets/products/spiderman-bust.jpeg';
 import pistonLamp from '@/assets/products/piston-lamp.jpeg';
@@ -117,4 +117,4 @@ export const categories = [
   'Scale Models',
   'Action Figures',
   'Gaming',
-];
+];*/
