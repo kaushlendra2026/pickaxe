@@ -1,27 +1,22 @@
-const domain = import.meta.env.VITE_SHOPIFY_DOMAIN
-const token = import.meta.env.VITE_SHOPIFY_STOREFRONT_TOKEN
-
-const endpoint = `https://${domain}/api/2024-01/graphql.json`
+const SHOPIFY_DOMAIN = import.meta.env.VITE_SHOPIFY_DOMAIN
+const STOREFRONT_TOKEN = import.meta.env.VITE_SHOPIFY_STOREFRONT_TOKEN
 
 export async function shopifyFetch<T>(
   query: string,
-  variables?: Record<string, any>
+  variables: Record<string, any> = {}
 ): Promise<T> {
-  const res = await fetch(endpoint, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "X-Shopify-Storefront-Access-Token": token,
-    },
-    body: JSON.stringify({ query, variables }),
-  })
+  const res = await fetch(
+    `https://${SHOPIFY_DOMAIN}/api/2024-01/graphql.json`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-Shopify-Storefront-Access-Token": STOREFRONT_TOKEN,
+      },
+      body: JSON.stringify({ query, variables }),
+    }
+  )
 
   const json = await res.json()
-
-  if (json.errors) {
-    console.error(json.errors)
-    throw new Error("Shopify API error")
-  }
-
   return json.data
 }
