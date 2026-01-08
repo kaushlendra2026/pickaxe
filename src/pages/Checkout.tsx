@@ -8,14 +8,18 @@ import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { CreditCard, Truck, Shield, ChevronRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { createShopifyCheckout } from "@/lib/checkout";
 
 const Checkout = () => {
   const { items, totalPrice, clearCart } = useCart();
 
-  const handlePlaceOrder = () => {
-    // This would integrate with Shopify checkout
-    alert('This would redirect to Shopify checkout. Enable Shopify to process payments.');
+  const handlePlaceOrder = async () => {
+    const url = await createShopifyCheckout(items);
+    clearCart();
+    window.location.href = url;
   };
+
+ 
 
   if (items.length === 0) {
     return (
