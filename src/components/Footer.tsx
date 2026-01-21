@@ -1,110 +1,146 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
-import { Box, Twitter, Instagram, Github, Mail } from 'lucide-react';
-
-const socialLinks = [
-  { icon: Twitter, href: '#', label: 'Twitter' },
-  { icon: Instagram, href: 'https://www.instagram.com/pickaxe.labs?igsh=bjZwcGx2bWtjYjFo', label: 'Instagram' },
-  { icon: Github, href: '#', label: 'GitHub' },
-  { icon: Mail, href: 'mailto:contact@printforge.com', label: 'Email' },
-];
+import { useState, useEffect } from "react";
+import { ShoppingCart, Menu, X } from "lucide-react";
+import { useNavigate, useLocation } from "react-router-dom";
+import { useCartStore } from "@/stores/cartStore";
+import CartDrawer from "./CartDrawer";
+import logo from "@/assets/logo.png";
 
 const navLinks = [
-  { label: 'Shop', href: '/shop' },
-  { label: 'About', href: '/about' },
-  { label: 'Contact', href: '/contact' },
-  { label: 'FAQ', href: '/faq' },
+  { label: "Home", href: "#home" },
+  { label: "Shop", href: "#shop" },
+  { label: "About", href: "#about" },
+  { label: "Contact", href: "#contact" },
 ];
 
-export function Footer() {
+const Navbar = () => {
+  const [isScrolled, setIsScrolled] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isCartOpen, setIsCartOpen] = useState(false);
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const totalItems = useCartStore((state) => state.getTotalItems());
+
+  useEffect(() => {
+    const handleScroll = () => setIsScrolled(window.scrollY > 50);
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  const handleNavClick = (href: string) => {
+    setIsMobileMenuOpen(false);
+    
+    // If we're not on the home page, navigate there first
+    if (location.pathname !== "/") {
+      navigate("/");
+      // Wait for navigation then scroll
+      setTimeout(() => {
+        const element = document.querySelector(href);
+        if (element) element.scrollIntoView({ behavior: "smooth" });
+      }, 100);
+    } else {
+      const element = document.querySelector(href);
+      if (element) element.scrollIntoView({ behavior: "smooth" });
+    }
+  };
+
+  const handleLogoClick = () => {
+    if (location.pathname !== "/") {
+      navigate("/");
+    } else {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  };
+
   return (
-    <footer className="border-t border-border bg-card relative mt-20">
-      <div className="max-w-7xl mx-auto flex flex-col justify-between min-h-[30rem] relative p-6 py-10">
-        <div className="flex flex-col mb-12 md:mb-0 w-full">
-          <div className="w-full flex flex-col items-center">
-            <div className="space-y-2 flex flex-col items-center flex-1">
-              <div className="flex items-center gap-2">
-                <span className="font-display text-3xl font-bold text-gradient">
-                  PICKAXE.LAB
-                </span>
-              </div>
-              <p className="text-muted-foreground font-medium text-center w-full max-w-sm px-4">
-                Premium 3D printed collectibles and functional art pieces for enthusiasts worldwide.
-              </p>
-            </div>
+    <>
+      <nav
+        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+          isScrolled || location.pathname !== "/"
+            ? "bg-background/95 backdrop-blur-md border-b border-border/50"
+            : "bg-background/80 backdrop-blur-sm"
+        }`}
+      >
+        <div className="container mx-auto px-4 md:px-6">
+          <div className="flex items-center justify-between h-16 md:h-20">
+            
+            {/* Brand */}
+            <button onClick={handleLogoClick} className="flex items-center gap-3 cursor-pointer">
+              <img
+                src={logo}
+                alt="Pickaxe Lab"
+                className="h-9 md:h-11 w-auto"
+              />
+              <span className="text-lg md:text-xl font-bold tracking-wide">
+                PICKAXE<span className="text-primary">.LAB</span>
+              </span>
+            </button>
 
-            {/* Social Links */}
-            <div className="flex mb-8 mt-6 gap-4">
-              {socialLinks.map((link, index) => {
-                const Icon = link.icon;
-                return (
-                  <a
-                    key={index}
-                    href={link.href}
-                    className="text-muted-foreground hover:text-primary transition-colors"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    <Icon className="w-6 h-6 hover:scale-110 duration-300" />
-                    <span className="sr-only">{link.label}</span>
-                  </a>
-                );
-              })}
-            </div>
-
-            {/* Nav Links */}
-            <div className="flex flex-wrap justify-center gap-6 text-sm font-medium text-muted-foreground">
-              {navLinks.map((link, index) => (
-                <Link
-                  key={index}
-                  to={link.href}
-                  className="hover:text-primary duration-300 hover:font-semibold"
+            {/* Desktop Navigation */}
+            <div className="hidden md:flex items-center gap-8">
+              {navLinks.map((link) => (
+                <button
+                  key={link.label}
+                  onClick={() => handleNavClick(link.href)}
+                  className="text-muted-foreground hover:text-foreground transition-colors text-sm font-medium"
                 >
                   {link.label}
-                </Link>
+                </button>
               ))}
             </div>
+
+            {/* Actions */}
+            <div className="flex items-center gap-4">
+              {/* Cart */}
+              <button
+                onClick={() => setIsCartOpen(true)}
+                className="relative p-2 rounded-lg border border-border/50 hover:border-primary/50 transition-colors"
+              >
+                <ShoppingCart className="w-5 h-5" />
+                {totalItems > 0 && (
+                  <span className="absolute -top-2 -right-2 bg-primary text-primary-foreground text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
+                    {totalItems}
+                  </span>
+                )}
+              </button>
+
+              {/* Mobile Menu */}
+              <button
+                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                className="md:hidden p-2"
+              >
+                {isMobileMenuOpen ? (
+                  <X className="w-6 h-6" />
+                ) : (
+                  <Menu className="w-6 h-6" />
+                )}
+              </button>
+            </div>
           </div>
+
+          {/* Mobile Menu */}
+          {isMobileMenuOpen && (
+            <div className="md:hidden py-4 border-t border-border/50">
+              <div className="flex flex-col gap-2">
+                {navLinks.map((link) => (
+                  <button
+                    key={link.label}
+                    onClick={() => handleNavClick(link.href)}
+                    className="text-left px-4 py-3 rounded-lg hover:bg-secondary/50 transition-colors"
+                  >
+                    {link.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
+      </nav>
 
-        {/* Bottom Section */}
-        <div className="mt-20 flex flex-col gap-2 items-center justify-center md:flex-row md:items-center md:justify-between">
-          <p className="text-sm text-muted-foreground text-center md:text-left">
-            © {new Date().getFullYear()} PrintForge. All rights reserved.
-          </p>
-          <p className="text-sm text-muted-foreground">
-            Crafted with passion for collectors
-          </p>
-        </div>
-      </div>
-
-      {/* Large Background Text */}
-      <div
-        className="bg-gradient-to-b from-foreground/10 via-foreground/5 to-transparent bg-clip-text text-transparent leading-none absolute left-1/2 -translate-x-1/2 bottom-32 font-display font-extrabold tracking-tighter pointer-events-none select-none text-center"
-        style={{ fontSize: 'clamp(3rem, 12vw, 10rem)', maxWidth: '95vw' }}
-      >
-        PICKAXE.LAB
-      </div>
-
-      {/* Bottom Logo */}
-      {/* <div className="absolute bottom-20 backdrop-blur-sm rounded-2xl bg-card/60 left-1/2 border-2 border-border hover:border-primary duration-400 flex ]">
-  <div className="w-12 h-12 md:w-16 md:h-16  rounded-xl flex items-center justify-center shadow-lg"> }
-    
-    <img
-      src="/logo.png"
-      alt="Brand Logo"
-      className="w-100 h-10 md:w-10 md:h-10 object-contain "
-    />
-
-  { </div>
-</div> */}
-
-
-      {/* Bottom Line */}
-      <div className="absolute bottom-28 backdrop-blur-sm h-px bg-gradient-to-r from-transparent via-border to-transparent w-full left-1/2 -translate-x-1/2" />
-
-      {/* Bottom Gradient */}
-      <div className="bg-gradient-to-t from-background via-background/80 to-transparent absolute bottom-24 w-full h-16 blur-sm" />
-    </footer>
+      {/* Cart Drawer */}
+      <CartDrawer isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
+    </>
   );
-}
+};
+
+export default Navbar;
