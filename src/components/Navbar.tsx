@@ -1,118 +1,146 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
-import { ShoppingCart, Menu, X, Box } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { useCart } from '@/contexts/CartContext';
-import { motion, AnimatePresence } from 'framer-motion';
+import { useState, useEffect } from "react";
+import { ShoppingCart, Menu, X } from "lucide-react";
+import { useNavigate, useLocation } from "react-router-dom";
+import { useCartStore } from "@/stores/cartStore";
+import CartDrawer from "./CartDrawer";
+import logo from "@/assets/logo.png";
 
-export function Navbar() {
-  const { totalItems, setIsCartOpen } = useCart();
-  const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
+const navLinks = [
+  { label: "Home", href: "#home" },
+  { label: "Shop", href: "#shop" },
+  { label: "About", href: "#about" },
+  { label: "Contact", href: "#contact" },
+];
 
-  const navItems = [
-    { name: 'Home', path: '/' },
-    { name: 'Shop', path: '/shop' },
-    { name: 'About', path: '/about' },
-    { name: 'Contact', path: '/contact' },
-  ];
+const Navbar = () => {
+  const [isScrolled, setIsScrolled] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isCartOpen, setIsCartOpen] = useState(false);
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const totalItems = useCartStore((state) => state.getTotalItems());
+
+  useEffect(() => {
+    const handleScroll = () => setIsScrolled(window.scrollY > 50);
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  const handleNavClick = (href: string) => {
+    setIsMobileMenuOpen(false);
+    
+    // If we're not on the home page, navigate there first
+    if (location.pathname !== "/") {
+      navigate("/");
+      // Wait for navigation then scroll
+      setTimeout(() => {
+        const element = document.querySelector(href);
+        if (element) element.scrollIntoView({ behavior: "smooth" });
+      }, 100);
+    } else {
+      const element = document.querySelector(href);
+      if (element) element.scrollIntoView({ behavior: "smooth" });
+    }
+  };
+
+  const handleLogoClick = () => {
+    if (location.pathname !== "/") {
+      navigate("/");
+    } else {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  };
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-lg border-b border-border">
-      <div className="container mx-auto px-6">
-        <div className="flex items-center justify-between h-16">
-          {/* Logo */}
-          <Link to="/" className="flex items-center gap-2">
-  <img
-    src="/logo.png"
-    alt="Brand Logo"
-    className="h-10 md:h-12 w-auto object-contain"
-  />
-
-  <span className="font-display text-xl font-bold text-gradient hidden sm:block">
-    PICKAXE.LAB
-  </span>
-</Link>
-
-
-          {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center gap-8">
-            {navItems.map((item) => (
-              <Link
-                key={item.name}
-                to={item.path}
-                className="text-muted-foreground hover:text-foreground transition-colors font-medium"
-              >
-                {item.name}
-              </Link>
-            ))}
-          </nav>
-
-          {/* Right Section */}
-          <div className="flex items-center gap-4">
-            <Link to="/signin" className="hidden sm:block">
-              <Button variant="ghost" size="sm">
-                Sign In
-              </Button>
-            </Link>
+    <>
+      <nav
+        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+          isScrolled || location.pathname !== "/"
+            ? "bg-background/95 backdrop-blur-md border-b border-border/50"
+            : "bg-background/80 backdrop-blur-sm"
+        }`}
+      >
+        <div className="container mx-auto px-4 md:px-6">
+          <div className="flex items-center justify-between h-16 md:h-20">
             
-            <Button
-              variant="outline"
-              size="icon"
-              className="relative"
-              onClick={() => setIsCartOpen(true)}
-            >
-              <ShoppingCart className="h-5 w-5" />
-              {totalItems > 0 && (
-                <span className="absolute -top-2 -right-2 w-5 h-5 rounded-full bg-primary text-primary-foreground text-xs font-bold flex items-center justify-center">
-                  {totalItems}
-                </span>
-              )}
-            </Button>
+            {/* Brand */}
+            <button onClick={handleLogoClick} className="flex items-center gap-3 cursor-pointer">
+              <img
+                src={logo}
+                alt="Pickaxe Lab"
+                className="h-9 md:h-11 w-auto"
+              />
+              <span className="text-lg md:text-xl font-bold tracking-wide">
+                PICKAXE<span className="text-primary">.LAB</span>
+              </span>
+            </button>
 
-            {/* Mobile Menu Button */}
-            <Button
-              variant="ghost"
-              size="icon"
-              className="md:hidden"
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            >
-              {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-            </Button>
-          </div>
-        </div>
-
-        {/* Mobile Menu */}
-        <AnimatePresence>
-          {mobileMenuOpen && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
-              exit={{ opacity: 0, height: 0 }}
-              className="md:hidden overflow-hidden"
-            >
-              <nav className="py-4 space-y-2">
-                {navItems.map((item) => (
-                  <Link
-                    key={item.name}
-                    to={item.path}
-                    onClick={() => setMobileMenuOpen(false)}
-                    className="block py-2 text-muted-foreground hover:text-foreground transition-colors font-medium"
-                  >
-                    {item.name}
-                  </Link>
-                ))}
-                <Link
-                  to="/signin"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="block py-2 text-primary font-medium"
+            {/* Desktop Navigation */}
+            <div className="hidden md:flex items-center gap-8">
+              {navLinks.map((link) => (
+                <button
+                  key={link.label}
+                  onClick={() => handleNavClick(link.href)}
+                  className="text-muted-foreground hover:text-foreground transition-colors text-sm font-medium"
                 >
-                  Sign In
-                </Link>
-              </nav>
-            </motion.div>
+                  {link.label}
+                </button>
+              ))}
+            </div>
+
+            {/* Actions */}
+            <div className="flex items-center gap-4">
+              {/* Cart */}
+              <button
+                onClick={() => setIsCartOpen(true)}
+                className="relative p-2 rounded-lg border border-border/50 hover:border-primary/50 transition-colors"
+              >
+                <ShoppingCart className="w-5 h-5" />
+                {totalItems > 0 && (
+                  <span className="absolute -top-2 -right-2 bg-primary text-primary-foreground text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
+                    {totalItems}
+                  </span>
+                )}
+              </button>
+
+              {/* Mobile Menu */}
+              <button
+                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                className="md:hidden p-2"
+              >
+                {isMobileMenuOpen ? (
+                  <X className="w-6 h-6" />
+                ) : (
+                  <Menu className="w-6 h-6" />
+                )}
+              </button>
+            </div>
+          </div>
+
+          {/* Mobile Menu */}
+          {isMobileMenuOpen && (
+            <div className="md:hidden py-4 border-t border-border/50">
+              <div className="flex flex-col gap-2">
+                {navLinks.map((link) => (
+                  <button
+                    key={link.label}
+                    onClick={() => handleNavClick(link.href)}
+                    className="text-left px-4 py-3 rounded-lg hover:bg-secondary/50 transition-colors"
+                  >
+                    {link.label}
+                  </button>
+                ))}
+              </div>
+            </div>
           )}
-        </AnimatePresence>
-      </div>
-    </header>
+        </div>
+      </nav>
+
+      {/* Cart Drawer */}
+      <CartDrawer isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
+    </>
   );
-}
+};
+
+export default Navbar;
